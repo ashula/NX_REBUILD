@@ -13,6 +13,7 @@ import sys
 import traceback
 import requests as r
 import json
+import time
 import rest_api as ra
 
 def get_cluster_ha_status(ip,uid,pwd):
@@ -46,6 +47,7 @@ if __name__=="__main__":
     USER='admin'
     PASSWORD ='HA8kV2018/4u!'
 
+    t = int(time.time())
     res = r.Response()
     res = get_cluster_ha_status(ip=VIP,uid=USER,pwd=PASSWORD)
     
@@ -55,6 +57,7 @@ if __name__=="__main__":
 #    num = 0
 #    end = res.json()['metadata']['total_entities']
 
+    print "TIME,",
     print "\t","FAILOVER_ENABLED,",
     print "\t","FAILOVER_IN_PROGRESS_HOST_UUID,",
     print "\t","HA_STATE,",
@@ -64,6 +67,7 @@ if __name__=="__main__":
 #        print "\t","modelName,"
     print
     #
+    print "%12d," % t ,
     print "\t%r," % res.json()['failover_enabled'],",",
     print "\t%s" % res.json()['failover_in_progress_host_uuids'],",",
     print "\t",res.json()['ha_state'],",",
@@ -75,7 +79,7 @@ if __name__=="__main__":
     print
 #        num+=1
 
-   
+    t = int(time.time())   
     res = r.Response()
     res = get_cluster_disk_ssd_status(ip=VIP,uid=USER,pwd=PASSWORD)
     
@@ -89,6 +93,7 @@ if __name__=="__main__":
 
     while num < end:
 #        print ","+"Name,  ",
+        print "ITME(on monitoring host),",
         print "\t","IP,",
         print "\t","ONLINE,",
         print "\t","DISK_STATUS,",
@@ -98,6 +103,7 @@ if __name__=="__main__":
 #        print "\t","modelName,"
         print
     #
+        print "%12d," % t ,
         print res.json()['entities'][num]['host_name'],",",
         print "\t",res.json()['entities'][num]['online'],",",
         print "\t",res.json()['entities'][num]['disk_status'],",",
