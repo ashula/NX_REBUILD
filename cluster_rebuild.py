@@ -4,7 +4,10 @@
 #
 #   Python to get cluster's ha status and disk(SSD) usage to check behavior in rebuild.
 #
-#   Ver-0.10: 07Feb2020, @tm
+#   Ver-0.13: 14Feb2020, change output format.
+#   Ver-0.12: 08Feb2020, @tm, get&show disk id
+#   Ver-0.11: 08Feb2020, @tm, timestamp
+#   Ver-0.10: 07Feb2020, @tm, initial implementation
 #
 #
 #
@@ -25,9 +28,22 @@ def get_cluster_ha_status(ip,uid,pwd):
     res = ra.rest_api(url=URL,payload=pld,method=md,user=uid,password=pwd)
 
     return res
+    
+def print_cluster_ha_status(t,res):    
+    print "TIME,      ",
+    print "\t","FAILOVER_ENABLED,",
+    print "\t","FAILOVER_IN_PROGRESS_HOST_UUID,",
+    print "\t","HA_STATE,",
+    print
+    #
+    print "%12d," % t ,
+    print "\t%r," % res.json()['failover_enabled'],
+    print "\t%s," % res.json()['failover_in_progress_host_uuids'],
+    print "\t",res.json()['ha_state'],",",
+    print
 
-def get_cluster_disk_ssd_status(ip,uid,pwd):
-    URL = "https://" + ip + ":9440/PrismGateway/services/rest/v2.0/disks/?search_string=SSD"
+def get_cluster_disk_status(ip,uid,pwd):
+    URL = "https://" + ip + ":9440/PrismGateway/services/rest/v2.0/disks/?search_string="
     pld={}
     md='get'
     
@@ -35,11 +51,54 @@ def get_cluster_disk_ssd_status(ip,uid,pwd):
     res = ra.rest_api(url=URL,payload=pld,method=md,user=uid,password=pwd)
 
     return res
-
+    
 
 def get_cluster_disk_ssd_usage():
     pass
 
+def print_cluster_disk_usage(t,res):
+    num = 0
+    end = res.json()['metadata']['total_entities']
+
+    while num < end:
+        print "TIME(on monitoring host),",
+        print "\tIP,",
+        print "\tDISK ID,",
+        print "\tTYPE,",
+        print "\tONLINE,",
+        print "\tDISK_STATUS,",
+        print "\tSTORAGE_USAGE(BYTES),"
+    #
+        disk_id =res.json()['entities'][num]['id']
+        id = disk_id[38:]
+        
+        print "%12d," % t ,
+        print "\t%s," % res.json()['entities'][num]['host_name'],
+        print "\t%s," % id.strip(),
+        print "\t%s," % res.json()['entities'][num]['storage_tier_name'],
+        print "\t%s," % res.json()['entities'][num]['online'],
+        print "\t%s," % res.json()['entities'][num]['disk_status'],
+        print "\t%s," % res.json()['entities'][num]['usage_stats']['storage.usage_bytes']
+        
+        num+=1
+    
+    ################################
+    
+    print "End"
+
+def print_cluster_list_disk_usage(t,res):
+    print  "%12d," % t ,
+    num = 0
+    end = res.json()['metadata']['total_entities']
+    
+    while num < end:
+        ip_address=res.json()['entities'][num]['host_name']       
+        tier = res.json()['entities'][num]['storage_tier_name']
+        disk_id =res.json()['entities'][num]['id']
+        id = disk_id[38:]
+        u = res.json()['entities'][num]['usage_stats']['storage.usage_bytes']
+        print "[%s,%s,%s,%s]," % (ip_address,tier,id,u) , 
+        num +=1 
 
 if __name__=="__main__":
     VIP = "172.16.105.106"
@@ -50,72 +109,22 @@ if __name__=="__main__":
     t = int(time.time())
     res = r.Response()
     res = get_cluster_ha_status(ip=VIP,uid=USER,pwd=PASSWORD)
-    
+
     # print "Return_code:%d" % res.status_code
     # print "%s"  % res.text
     
-#    num = 0
-#    end = res.json()['metadata']['total_entities']
-
-    print "TIME,",
-    print "\t","FAILOVER_ENABLED,",
-    print "\t","FAILOVER_IN_PROGRESS_HOST_UUID,",
-    print "\t","HA_STATE,",
-#        print "\t","STORAGE_USAGE(BYTES),",
-#        print "\t","version,",
-#        print "\t","model,",
-#        print "\t","modelName,"
-    print
-    #
-    print "%12d," % t ,
-    print "\t%r," % res.json()['failover_enabled'],",",
-    print "\t%s" % res.json()['failover_in_progress_host_uuids'],",",
-    print "\t",res.json()['ha_state'],",",
-#        print "\t",res.json()['entities'][num]['usage_stats']['storage.usage_bytes'],",",
-#        print "\t",r.json()['entities'][num]['hypervisorTypes'],",",
-#        print "\t",r.json()['entities'][num]['version'],",",
-#        print "\t",r.json()['entities'][num]['rackableUnits'][0]['model'],",",
-#        print "\t",r.json()['entities'][num]['rackableUnits'][0]['modelName'],","
-    print
-#        num+=1
+    print_cluster_ha_status(t,res)
+    
+    ################################
 
     t = int(time.time())   
     res = r.Response()
-    res = get_cluster_disk_ssd_status(ip=VIP,uid=USER,pwd=PASSWORD)
+    res = get_cluster_disk_status(ip=VIP,uid=USER,pwd=PASSWORD)
     
-    #print "Return_code:%d" % res.status_code
-    #print "%s"  % res.text
+    print_cluster_disk_usage(t,res)
 
-    num = 0
-    end = res.json()['metadata']['total_entities']
-
-    print ################################
-
-    while num < end:
-#        print ","+"Name,  ",
-        print "ITME(on monitoring host),",
-        print "\t","IP,",
-        print "\t","ONLINE,",
-        print "\t","DISK_STATUS,",
-        print "\t","STORAGE_USAGE(BYTES),",
-#        print "\t","version,",
-#        print "\t","model,",
-#        print "\t","modelName,"
-        print
-    #
-        print "%12d," % t ,
-        print res.json()['entities'][num]['host_name'],",",
-        print "\t",res.json()['entities'][num]['online'],",",
-        print "\t",res.json()['entities'][num]['disk_status'],",",
-        print "\t",res.json()['entities'][num]['usage_stats']['storage.usage_bytes'],",",
-#        print "\t",r.json()['entities'][num]['hypervisorTypes'],",",
-#        print "\t",r.json()['entities'][num]['version'],",",
-#        print "\t",r.json()['entities'][num]['rackableUnits'][0]['model'],",",
-#        print "\t",r.json()['entities'][num]['rackableUnits'][0]['modelName'],","
-        print
-        num+=1
+    print_cluster_list_disk_usage(t,res)
     
-    print ###############
-    print "End"
-
-
+    ################################
+    
+#   print "End"
