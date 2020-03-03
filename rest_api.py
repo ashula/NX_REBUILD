@@ -3,6 +3,8 @@
 #
 #    General REST-API
 #
+#    Ver-0.20, 20200218, debug prints to syserr
+#
 #    $ python ./rest_api  <IP>  <sub_url> <body> <method> <uid> <pwd>
 #
 #    return REST api
@@ -23,7 +25,7 @@ def rest_api(url, payload, method, user, password):
 #    print "method=%s" % method
    
     URL= url
-    print "url=%s" % URL
+    print >> sys.stderr,  "url=%s" % URL
     
     jpayload=json.dumps(payload)
 
@@ -54,7 +56,7 @@ def rest_api(url, payload, method, user, password):
     else:
         if (r.status_code in [200,201,202,203,204,205,206]):
             f_success = True
-            print >> sys.stderr,"(%s,%s):Credentials Success" % (uid,pwd)
+            print >> sys.stderr,"(%s,*****):Credentials Success" % (uid)   # pwd
         else:     # case of Authentication Error.
             f_success = False
             print >> sys.stderr, "code=%s",r.status_code

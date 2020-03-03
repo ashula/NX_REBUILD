@@ -89,20 +89,21 @@ def print_cluster_disk_usage(t,res):
     print "End"
 
 def print_cluster_list_disk_usage(t,res):
-    print  "[%12d," % t ,
+    print  '[%12d' % t ,
     num = 0
     end = res.json()['metadata']['total_entities']
     
     while num < end:
-        ip_address=res.json()['entities'][num]['host_name']       
-        tier = res.json()['entities'][num]['storage_tier_name']
+        print ",",
+        ip_address="'"+res.json()['entities'][num]['host_name']+"'"
         disk_id =res.json()['entities'][num]['id']
         id = disk_id[38:]
+        tier ="'"+ res.json()['entities'][num]['storage_tier_name'] + "'"
         u = res.json()['entities'][num]['usage_stats']['storage.usage_bytes']
-        print "[%s,%s,%s,%s]," % (ip_address,tier,id,u) , 
+        print "[%s,%s,%s,%s]" % (ip_address,id,tier,u) , 
         num +=1 
 
-    print "]"
+    print ']'
 
 
 def print_cluster_list_disk_usage_pyplot(t,res):
