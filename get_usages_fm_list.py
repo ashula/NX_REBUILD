@@ -35,7 +35,7 @@ if (__name__=='__main__'):
 #           print ', [' ,
            print ', ' ,
            for dstats in lst[2:]:
-               if dstats[2] == 'SSD':
+               if dstats[1] == 'SSD':
                    if num==0:
                        print "%d" % dstats[3],
                    else:
