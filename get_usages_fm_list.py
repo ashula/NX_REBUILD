@@ -19,15 +19,15 @@ if (__name__=='__main__'):
        for line in df:
            line=line[:len(line)-1]
 
-           print >> syserr,  "#"
+           print >> stderr,  "#"
 
            lst = eval(line)
-           print >> syserr, lst
-           print >> syserr, "##"
-           print >> syserr, lst[0]
-           print >> syserr, lst[1]
-           print >> syserr, lst[len(lst)-10:]
-           print >> syserr, "###"
+           print >> stderr, lst
+           print >> stderr, "##"
+           print >> stderr, lst[0]
+           print >> stderr, lst[1]
+           print >> stderr, lst[len(lst)-10:]
+           print >> stderr, "###"
 
            num=0
            print lst[0],
