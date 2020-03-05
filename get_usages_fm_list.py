@@ -37,7 +37,8 @@ if (__name__=='__main__'):
                if dstats[2] == 'SSD':
                    if num==0:
                        print "%d" % dstats[3],
-                   print ",%d" % dstats[3],
+                   else:
+                       print ",%d" % dstats[3],
                    num+=1
 
            print ']'
